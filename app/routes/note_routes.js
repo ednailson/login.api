@@ -1,10 +1,35 @@
 var ObjectID = require('mongodb').ObjectID
 
 module.exports = function(app, db) {
-	app.get('/notes/:id', (req, res) => {
+	app.get('/users/:id', (req, res) => {
 		const id = req.params.id;
 		const details = {'_id': new ObjectID(id) };
-		db.collection('notes').findOne(details, (err, item) => {
+		db.collection('users').findOne(details, (err, item) => {
+			if (err) {
+				res.send({ 'error': 'Ocorreu um erro' });
+			} else {
+				res.send("Usuario: " + item);
+			}
+		});
+	});
+
+	app.delete('/users/:id', (req, res) => {
+		const id = req.params.id;
+		const details = {'_id': new ObjectID(id) };
+		db.collection('users').remove(details, (err, item) => {
+			if (err) {
+				res.send({ 'error': 'Ocorreu um erro' });
+			} else {
+				res.send('Usuario ' + id + ' deletado!');
+			}
+		});
+	});
+
+	app.put('/users/:id', (req, res) => {
+		const id = req.params.id;
+		const details = {'_id': new ObjectID(id) };
+		const user = { text: req.body.body, title: req.body.title };
+		db.collection('users').update(details, user, (err, item) => {
 			if (err) {
 				res.send({ 'error': 'Ocorreu um erro' });
 			} else {
@@ -13,34 +38,9 @@ module.exports = function(app, db) {
 		});
 	});
 
-	app.delete('/notes/:id', (req, res) => {
-		const id = req.params.id;
-		const details = {'_id': new ObjectID(id) };
-		db.collection('notes').remove(details, (err, item) => {
-			if (err) {
-				res.send({ 'error': 'Ocorreu um erro' });
-			} else {
-				res.send('Note ' + id + ' deleted!');
-			}
-		});
-	});
-
-	app.put('/notes/:id', (req, res) => {
-		const id = req.params.id;
-		const details = {'_id': new ObjectID(id) };
-		const note = { text: req.body.body, title: req.body.title };
-		db.collection('notes').update(details, note, (err, item) => {
-			if (err) {
-				res.send({ 'error': 'Ocorreu um erro' });
-			} else {
-				res.send(item);
-			}
-		});
-	});
-
-	app.post('/notes', (req, res) => {
-		const note = { text: req.body.body, title: req.body.title };
-		db.collection('notes').insert(note, (err, result) => {
+	app.post('/users', (req, res) => {
+		const user = req.body;
+		db.collection('users').insert(user, (err, result) => {
 			if (err) {
 				res.send({ 'error': 'Ocorreu um erro' });
 			} else {
