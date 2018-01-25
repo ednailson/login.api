@@ -1,25 +1,15 @@
 {
-  "name": "kofre-ntopus",
-  "version": "1.0.0",
-  "description": "Creating an API for outside login",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon server.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/juniorvbc/kofre-nTopus.git"
-  },
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/juniorvbc/kofre-nTopus/issues"
-  },
-  "homepage": "https://github.com/juniorvbc/kofre-nTopus#readme",
+  "name": "node-rest-auth",
+  "main": "server.js",
   "dependencies": {
-    "body-parser": "^1.18.2",
-    "express": "^4.16.2"
+    "bcrypt": "^0.8.5",
+    "body-parser": "~1.9.2",
+    "express": "~4.9.8",
+    "jwt-simple": "^0.3.1",
+    "mongoose": "~4.2.4",
+    "morgan": "~1.5.0",
+    "passport": "^0.3.0",
+    "passport-jwt": "^1.2.1"
   },
   "devDependencies": {
     "nodemon": "^1.14.11"
