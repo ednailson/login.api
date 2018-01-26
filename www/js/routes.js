@@ -9,5 +9,9 @@ angular.module('my.routes', [])
     templateUrl : "/templates/login.html",
     controller: "LoginCtrl"
   })
+  .when("/register", {
+    templateUrl : "/templates/register.html",
+    controller: "RegisterCtrl"
+  })
   .otherwise('/');
 })

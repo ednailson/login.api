@@ -4,16 +4,24 @@
 
         <div class="col-lg-6 col-lg-offset-3">
             <div class="jumbotron">
-                <h1>@login</h1>
-                <div class="input-group" style="margin-top: 20px;">
+                <h1>@cadastro</h1>
+
+                <div class="input-group">
                     <span class="input-group-addon" id="basic-addon1">Usuário</span>
                     <input type="text" class="form-control" placeholder="Usuário" aria-describedby="basic-addon1" ng-model="user.name">
                 </div>
+
+                <div class="input-group" style="margin-top: 20px; margin-bottom: 20px;">
+                    <span class="input-group-addon" id="basic-addon1">E-mail</span>
+                    <input type="email" class="form-control" placeholder="E-mail" aria-describedby="basic-addon1" ng-model="user.password">
+                </div>
+
                 <div class="input-group" style="margin-top: 20px; margin-bottom: 20px;">
                     <span class="input-group-addon" id="basic-addon1">Senha</span>
                     <input type="password" class="form-control" placeholder="Senha" aria-describedby="basic-addon1" ng-model="user.password">
                 </div>
-                <p><a class="btn btn-primary btn-lg" ng-click="login()" role="button">Entrar</a></p>
+
+                <p><a class="btn btn-primary btn-lg" ng-click="signup()" role="button">Cadastrar</a></p>
             </div>
         </div>
 
