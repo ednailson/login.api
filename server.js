@@ -20,9 +20,13 @@ app.use(morgan('dev'));
 app.use(passport.initialize());
 
 // demo Route (GET http://localhost:8080)
-app.get('/', function(req, res) {
-  res.send('A API está em http://localhost:' + port + '/api');
-});
+// app.get('/', function(req, res) {
+//   res.send('A API está em http://localhost:' + port + '/api');
+// });
+
+//Pasta utilizada para o frontEnd vai ser a pasta WWW
+app.use('/', express.static(__dirname + '/www'));
+
 
 // connect to database
 mongoose.connect(config.database);
@@ -32,6 +36,8 @@ require('./config/passport')(passport);
 
 // bundle our routes
 var apiRoutes = express.Router();
+
+
 
 // create a new user account (POST http://localhost:8080/api/signup)
 apiRoutes.post('/signup', function(req, res) {

@@ -1,4 +1,4 @@
-angular.module('starter')
+angular.module('my.controllers', [])
 
 .controller('LoginCtrl', function($scope, AuthService, $state){
   $scope.login = function(){

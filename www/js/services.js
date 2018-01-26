@@ -1,4 +1,4 @@
-angular.module('starter')
+angular.module('my.services',[])
 
 .service('AuthService', function($q, $http, $API_ENDPOINT){
   return{
