@@ -53,7 +53,7 @@ angular.module('my.controllers', ['ngRoute', 'my.routes','my.services'])
   };
   $scope.logout = function(){
     AuthService.logout();
-    location.replace('#');
+    location.replace('#/');
   };
 })
 

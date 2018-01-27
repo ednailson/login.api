@@ -51,6 +51,7 @@ angular.module('my.services', ['ngRoute','my.controllers', 'my.routes'])
           storeUserCredentials(result.data.token);
           resolve(result.data.msg);
         } else {
+          console.log('to see');
           reject(result.data.msg);
         }
       });
