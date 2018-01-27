@@ -18,7 +18,8 @@ angular.module('my.controllers', ['ngRoute', 'my.routes','my.services'])
       location.replace('#/user');
     }, function(errMessage){
       $rootScope.alertLogin = false;
-      console.log("Erro no login")
+      console.log("Erro no login");
+      location.replace('#/');
     })
   };
 })
@@ -32,9 +33,11 @@ angular.module('my.controllers', ['ngRoute', 'my.routes','my.services'])
   $scope.signup = function(){
     AuthService.register($scope.user).then(function(msg){
       console.log('Cadastro realizado com sucesso');
+      $rootScope.alertRegister = true;
       location.replace('#/');
     }, function(errMessage){
-      console.log("Erro no cadastro")
+      console.log("Erro no cadastro");
+      $rootScope.alertRegister = false;
     })
   };
 })
@@ -51,7 +54,6 @@ angular.module('my.controllers', ['ngRoute', 'my.routes','my.services'])
   $scope.logout = function(){
     AuthService.logout();
     location.replace('#');
-
   };
 })
 
