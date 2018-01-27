@@ -6,11 +6,13 @@
             <div class="jumbotron">
               <center>
                 <img src="http://www.kofre.com.br/imgs/logotipo.png"></img>
-                <h1> nTopus</h1>
-                <!-- <p>
-                    {{test}}
-                </p> -->
-                <p><a class="btn btn-link btn-lg" href="#/register" role="button">Cadastro</a> <a class="btn btn-default btn-lg" href="#/login" role="button">Login</a></p>
+                <h1> Você logou!</h1>
+
+                <p>
+                    {{userinfo}}
+                </p>
+
+                <p><a class="btn btn-primary btn-lg" ng-click="logout()" role="button">Sair</a></p>
               </center>
             </div>
         </div>
