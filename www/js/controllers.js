@@ -1,10 +1,11 @@
 angular.module('my.controllers', ['ngRoute', 'my.routes','my.services'])
 
-.controller('HomeCtrl', function($scope, $rootScope){
-
+.controller('HomeCtrl', function($scope, $rootScope, $location){
+  if (window.localStorage.getItem('token')) window.location = "#/user";
 })
 
 .controller('LoginCtrl', function($scope, $rootScope, AuthService, $location){
+  if (window.localStorage.getItem('token')) window.location = "#/user";
   $scope.user = {
     name: '',
     password: ''
@@ -25,6 +26,7 @@ angular.module('my.controllers', ['ngRoute', 'my.routes','my.services'])
 })
 
 .controller('RegisterCtrl', function($scope, $rootScope, AuthService, $location){
+  if (window.localStorage.getItem('token')) window.location = "#/user";
   $scope.user = {
     name: '',
     password: ''
@@ -36,13 +38,14 @@ angular.module('my.controllers', ['ngRoute', 'my.routes','my.services'])
       $rootScope.alertRegister = true;
       location.replace('#/');
     }, function(errMessage){
-      console.log("Erro no cadastro");
       $rootScope.alertRegister = false;
+      location.replace('#/');
     })
   };
 })
 
 .controller('UserCtrl', function($scope, $rootScope, AuthService, API_ENDPOINT, $http, $location){
+  if (!window.localStorage.getItem('token')) window.location = "#/";
   $scope.destroySession = function(){
     AuthService.logout();
   };

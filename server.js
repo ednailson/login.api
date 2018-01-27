@@ -4,45 +4,44 @@ var bodyParser  = require('body-parser');
 var morgan      = require('morgan');
 var mongoose    = require('mongoose');
 var passport	= require('passport');
-var config      = require('./config/database'); // get db config file
+var config      = require('./config/database'); // Config do banco
 var User        = require('./app/models/user'); // get the mongoose model
 var port        = process.env.PORT || 8080;
 var jwt         = require('jwt-simple');
 
-// get our request parameters
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 // log to console
 app.use(morgan('dev'));
 
-// Use the passport package in our application
+// Passport para a senha
 app.use(passport.initialize());
 
-// demo Route (GET http://localhost:8080)
+// rota de demostração (GET http://localhost:8080)
 // app.get('/', function(req, res) {
 //   res.send('A API está em http://localhost:' + port + '/api');
 // });
 
-//Pasta utilizada para o frontEnd vai ser a pasta WWW
+//Pasta front-end: WWW
 app.use('/', express.static(__dirname + '/www'));
 
 
-// connect to database
+// conectando com o banco
 mongoose.connect(config.database);
 
-// pass passport for configuration
+// configuração para passport
 require('./config/passport')(passport);
 
-// bundle our routes
+// rotas
 var apiRoutes = express.Router();
 
 
 
-// create a new user account (POST http://localhost:8080/api/signup)
+// CADASTRO
 apiRoutes.post('/signup', function(req, res) {
   if (!req.body.name || !req.body.password) {
-    res.json({success: false, msg: 'Please pass name and password.'});
+    res.json({success: false, msg: 'Passe usuario e senha'});
   } else {
     var newUser = new User({
       name: req.body.name,
@@ -51,9 +50,9 @@ apiRoutes.post('/signup', function(req, res) {
     // save the user
     newUser.save(function(err) {
       if (err) {
-        return res.json({success: false, msg: 'Username already exists.'});
+        return res.json({success: false, msg: 'Usuario ja existe'});
       }
-      res.json({success: true, msg: 'Successful created new user.'});
+      res.json({success: true, msg: 'Usuario criado com sucesso'});
     });
   }
 });
@@ -71,7 +70,7 @@ apiRoutes.post('/authenticate', function(req,res){
 				if(isMatch && !err){
 					var token = jwt.encode(user, config.secret);
 
-					res.json({success: true, token: 'JWT ' + token})
+					res.json({success: true, token: token})
 				}else{
 					return res.status(403).send({success: false, msg: 'Senha incorreta'});
 				}
@@ -102,12 +101,7 @@ apiRoutes.get('/memberinfo', passport.authenticate('jwt', { session: false}), fu
 
 getToken = function (headers) {
   if (headers && headers.authorization) {
-    var parted = headers.authorization.split(' ');
-    if (parted.length === 2) {
-      return parted[1];
-    } else {
-      return null;
-    }
+    return headers.authorization;
   } else {
     return null;
   }

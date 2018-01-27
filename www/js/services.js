@@ -1,7 +1,7 @@
 angular.module('my.services', ['ngRoute','my.controllers', 'my.routes'])
 
 .service('AuthService', function($q, $http, API_ENDPOINT) {
-  var LOCAL_TOKEN_KEY = 'yourTokenKey';
+  var LOCAL_TOKEN_KEY = 'token';
   var isAuthenticated = false;
   var authToken;
 
