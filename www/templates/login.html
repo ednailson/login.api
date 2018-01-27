@@ -1,0 +1,25 @@
+<div class="container">
+
+    <div class="row">
+
+        <div class="col-lg-6 col-lg-offset-3">
+          <div style="margin-bottom: 10px;">
+            <div class="alert alert-danger" ng-show="alertLogin==false" role="alert"><strong>Erro</strong> no login!</div>
+          </div>
+            <div class="jumbotron">
+                <h1>@login</h1>
+                <div class="input-group" style="margin-top: 20px;">
+                    <span class="input-group-addon" id="basic-addon1">Usuário</span>
+                    <input type="text" class="form-control" placeholder="Usuário" aria-describedby="basic-addon1" ng-model="user.name">
+                </div>
+                <div class="input-group" style="margin-top: 20px; margin-bottom: 20px;">
+                    <span class="input-group-addon" id="basic-addon1">Senha</span>
+                    <input type="password" class="form-control" placeholder="Senha" aria-describedby="basic-addon1" ng-model="user.password">
+                </div>
+                <p><a class="btn btn-primary btn-lg" ng-click="login()" role="button">Entrar</a></p>
+            </div>
+        </div>
+
+    </div>
+
+</div>
