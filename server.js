@@ -58,25 +58,28 @@ apiRoutes.post('/signup', function(req, res) {
 });
 
 
-apiRoutes.post('/authenticate', function(req,res){
-	User.findOne({
-		name: req.body.name
-	}, function(err, user){
-		if(err) return res.status(403).send({success: false, msg: 'Erro no login'});
-		if(!user){
-			return res.status(403).send({success: false, msg: 'Usuario nao encontrado'});
-		}else{
-			user.comparePassword(req.body.password, function(err, isMatch){
-				if(isMatch && !err){
-					var token = jwt.encode(user, config.secret);
+apiRoutes.post('/authenticate', function(req, res) {
+  User.findOne({
+    name: req.body.name
+  }, function(err, user) {
+    if (err) throw err;
 
-					res.json({success: true, token: token})
-				}else{
-					return res.status(403).send({success: false, msg: 'Senha incorreta'});
-				}
-			})
-		};
-	});
+    if (!user) {
+      res.send({success: false, msg: 'Authentication failed. User not found.'});
+    } else {
+      // check if password matches
+      user.comparePassword(req.body.password, function (err, isMatch) {
+        if (isMatch && !err) {
+          // if user is found and password is right create a token
+          var token = jwt.encode(user, config.secret);
+          // return the information including token as JSON
+          res.json({success: true, token: 'JWT ' + token});
+        } else {
+          res.send({success: false, msg: 'Authentication failed. Wrong password.'});
+        }
+      });
+    }
+  });
 });
 
 apiRoutes.get('/memberinfo', passport.authenticate('jwt', { session: false}), function(req, res) {
@@ -91,7 +94,7 @@ apiRoutes.get('/memberinfo', passport.authenticate('jwt', { session: false}), fu
         if (!user) {
           return res.status(403).send({success: false, msg: 'Authentication failed. User not found.'});
         } else {
-          res.json({success: true, msg: 'Welcome in the member area ' + user.name + '!'});
+          res.json({success: true, msg: 'Welcome in the member area ' + user.name + '!', user: user});
         }
     });
   } else {
@@ -101,7 +104,12 @@ apiRoutes.get('/memberinfo', passport.authenticate('jwt', { session: false}), fu
 
 getToken = function (headers) {
   if (headers && headers.authorization) {
-    return headers.authorization;
+    var parted = headers.authorization.split(' ');
+    if (parted.length === 2) {
+      return parted[1];
+    } else {
+      return null;
+    }
   } else {
     return null;
   }
