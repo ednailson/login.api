@@ -60,6 +60,11 @@ angular.module('my.controllers', ['ngRoute', 'my.routes','my.services'])
   };
 })
 
+.controller('EditCtrl', function($scope, $rootScope, AuthService, API_ENDPOINT, $http, $location){
+  if (!window.localStorage.getItem('token')) window.location = "#/";
+
+})
+
 .controller('AppCtrl', function($scope, AuthService, AUTH_EVENTS){
   $scope.$on(AUTH_EVENTS.notAuthenticated, function(event) {
     AuthService.logout();

@@ -1,0 +1,25 @@
+<div class="container">
+
+    <div class="row">
+
+        <div class="col-lg-6 col-lg-offset-3">
+            <div style="margin-bottom: 10px;">
+                <div class="alert alert-success" ng-show="alertLogin==false" role="alert"><strong>Login</strong> realizado com sucesso!</div>
+            </div>
+            <div class="jumbotron">
+                <center>
+                    <img src="http://www.kofre.com.br/imgs/logotipo.png"></img>
+                    <h1> Editar user!</h1>
+
+                    <p>
+                        {{userinfo}}
+                    </p>
+
+                    <p><a class="btn btn-primary btn-lg" ng-click="logout()" role="button">Voltar</a></p>
+                </center>
+            </div>
+        </div>
+
+    </div>
+
+</div>

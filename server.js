@@ -62,7 +62,7 @@ apiRoutes.post('/authenticate', function(req,res){
 	User.findOne({
 		name: req.body.name
 	}, function(err, user){
-		if(err) throw err;
+		if(err) return res.status(403).send({success: false, msg: 'Erro no login'});
 		if(!user){
 			return res.status(403).send({success: false, msg: 'Usuario nao encontrado'});
 		}else{
