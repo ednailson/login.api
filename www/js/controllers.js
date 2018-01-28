@@ -6,6 +6,7 @@ angular.module('my.controllers', ['ngRoute', 'my.routes','my.services'])
 
 .controller('LoginCtrl', function($scope, $rootScope, AuthService, $location){
   if (window.localStorage.getItem('token')) window.location = "#/user";
+  $rootScope.alertRegister = null;
   $scope.user = {
     name: '',
     password: ''
@@ -45,19 +46,24 @@ angular.module('my.controllers', ['ngRoute', 'my.routes','my.services'])
 })
 
 .controller('UserCtrl', function($scope, $rootScope, AuthService, API_ENDPOINT, $http, $location){
+
+  //Verificando se há token no localStorage, se não, é redirecionado
   if (!window.localStorage.getItem('token')) window.location = "#/";
-  $scope.destroySession = function(){
-    AuthService.logout();
-  };
+  $rootScope.alertRegister = null; //Controle para sumir alerta na home caso a view seja mudada
+
+
   $scope.getInfo = function(){
     $http.get(API_ENDPOINT.url + '/userinfo').then(function(result){
       $scope.userinfo = result.data.msg;
     })
   };
+
+  //função para o logout
   $scope.logout = function(){
     AuthService.logout();
     location.replace('#/');
   };
+  
 })
 
 .controller('EditCtrl', function($scope, $rootScope, AuthService, API_ENDPOINT, $http, $location){
