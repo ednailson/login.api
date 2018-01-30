@@ -1,2 +1,5 @@
-# kofre-nTopus
-Creating an API for outside login
+# KOFRE Seleção
+
+## Estrutura JSON
+
+#### USER
