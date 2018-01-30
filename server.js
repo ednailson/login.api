@@ -112,9 +112,7 @@ apiRoutes.post('/authenticate', function(req, res) {
 apiRoutes.get('/userinfo', passport.authenticate('jwt', {
     session: false
 }), function(req, res) {
-    console.log(req.headers);
     let token = getToken(req.headers);
-    console.log(token);
     if (token) {
         let decoded = jwt.decode(token, config.secret);
         User.findOne({
@@ -128,11 +126,19 @@ apiRoutes.get('/userinfo', passport.authenticate('jwt', {
                     msg: 'Falha na autenticação!'
                 });
             } else {
-                res.json({
-                    success: true,
-                    msg: 'Bem vindo a area dos membros' + user.name + '!',
-                    user: user
-                });
+                if (user.active) {
+                    res.json({
+                        success: true,
+                        msg: 'Bem vindo a area dos membros' + user.name + '!',
+                        user: user
+                    });
+                }
+                else{
+                  res.json({
+                      success: true,
+                      msg: 'Usuario ' + user.name + ' está inativo! Ative-o para buscar suas informações'
+                  });
+                }
             }
         });
     } else {
@@ -193,10 +199,10 @@ apiRoutes.put('/edit', passport.authenticate('jwt', {
                     msg: 'Falha na autenticação!'
                 });
             } else {
-                if(req.body.email) user.email = req.body.email;
-                if(req.body.about) user.about = req.body.about;
-                if(req.body.age) user.age = req.body.age;
-                if(req.body.phone) user.phone = req.body.phone;
+                if (req.body.email) user.email = req.body.email;
+                if (req.body.about) user.about = req.body.about;
+                if (req.body.age) user.age = req.body.age;
+                if (req.body.phone) user.phone = req.body.phone;
                 user.save(function() {
                     return res.status(200).send({
                         success: true,
