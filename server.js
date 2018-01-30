@@ -25,7 +25,7 @@ app.use(passport.initialize());
 //   res.send('A API está em http://localhost:' + port + '/api');
 // });
 
-//Pasta front-end: WWW
+//Pasta: WWW
 app.use('/', express.static(__dirname + '/www'));
 
 
@@ -42,13 +42,17 @@ let apiRoutes = express.Router();
 
 // CADASTRO
 apiRoutes.post('/signup', function(req, res) {
+
     if (!req.body.name || !req.body.password) {
+        // se não há usuário e/ou senha
         console.log('Usuario e/ou senha faltando');
+        // resposta
         res.json({
             success: false,
-            msg: 'Passe usuario, email e senha'
+            msg: 'Passe usuario e senha'
         });
     } else {
+        // inserindo informações do 'request' a 'newUser' para salva-lo no banco
         let newUser = new User({
             name: req.body.name,
             password: req.body.password,
@@ -58,14 +62,16 @@ apiRoutes.post('/signup', function(req, res) {
             active: true,
             phone: req.body.phone
         });
-        // save the user
+        // salvando newUser
         newUser.save(function(err) {
             if (err) {
+                //indica que o usuário já existe, o que não pode ocorrer.
                 return res.json({
                     success: false,
                     msg: 'Usuario ja existente'
                 });
             } else {
+                // sucesso ao criar o usuário
                 res.json({
                     success: true,
                     msg: 'Usuario criado com sucesso'
@@ -75,30 +81,33 @@ apiRoutes.post('/signup', function(req, res) {
     }
 });
 
-
+//Autenticação (verificação do usuário e da senha)
 apiRoutes.post('/authenticate', function(req, res) {
+    //verificando se há algum usuário com o usuário enviado
     User.findOne({
         name: req.body.name
     }, function(err, user) {
+        //se houve algum erro
         if (err) throw err;
-
+        //verificando se o usuário foi encontrado, se não, entra nesse if
         if (!user) {
             res.send({
                 success: false,
                 msg: 'Usuário não encontrado'
             });
         } else {
-            // check if password matches
+            // verificando se as senhas coincidem, isso é feito no metodo comparePassword em user.js
             user.comparePassword(req.body.password, function(err, isMatch) {
                 if (isMatch && !err) {
-                    // if user is found and password is right create a token
+                    // se as senhas se coincidem nós criamos uma token, para o acesso na api
                     let token = jwt.encode(user, config.secret);
-                    // return the information including token as JSON
+                    // retorna a token e a informação que a autenticação foi realizada com sucesso
                     res.json({
                         success: true,
                         token: 'JWT ' + token
                     });
                 } else {
+                    //caso a senha informada não coincida
                     res.send({
                         success: false,
                         msg: 'Senha incorreta!'
@@ -112,21 +121,30 @@ apiRoutes.post('/authenticate', function(req, res) {
 apiRoutes.get('/userinfo', passport.authenticate('jwt', {
     session: false
 }), function(req, res) {
+
+    //separando a token
     let token = getToken(req.headers);
+
+    // se alguma token foi enviada
     if (token) {
+
+        //descodificando a token, verificando-a e dando a 'decoded' todas as informações do usuário referente a tal token
         let decoded = jwt.decode(token, config.secret);
+        //verificando se existe o usuário
         User.findOne({
             name: decoded.name
         }, function(err, user) {
             if (err) throw err;
-
+            //caso o usuário não seja encontrado
             if (!user) {
                 return res.status(403).send({
                     success: false,
                     msg: 'Falha na autenticação!'
                 });
             } else {
+                //se o usuário foi encontrado nós verificamos aqui se ele está ativo
                 if (user.active) {
+                    //caso o usuário esteja ativo nós retornamos suas informações
                     res.json({
                         success: true,
                         msg: 'Bem vindo a area dos membros' + user.name + '!',
@@ -134,6 +152,7 @@ apiRoutes.get('/userinfo', passport.authenticate('jwt', {
                     });
                 }
                 else{
+                  //caso o usuário esteja inativo
                   res.json({
                       success: true,
                       msg: 'Usuario ' + user.name + ' está inativo! Ative-o para buscar suas informações'
@@ -142,6 +161,7 @@ apiRoutes.get('/userinfo', passport.authenticate('jwt', {
             }
         });
     } else {
+        //caso nenhuma token tenha sido enviada
         return res.status(403).send({
             success: false,
             msg: 'Nenhuma token foi enviada'
@@ -149,23 +169,34 @@ apiRoutes.get('/userinfo', passport.authenticate('jwt', {
     }
 });
 
-apiRoutes.put('/inactivate', passport.authenticate('jwt', {
+
+//inativando usuário
+apiRoutes.post('/inactivate', passport.authenticate('jwt', {
     session: false
 }), function(req, res) {
+  //separando a token
     let token = getToken(req.headers);
+
+    //verificando se alguma token foi enviada
     if (token) {
+        //descodificando a token, verificando-a e dando a 'decoded' todas as informações do usuário referente a tal token
         let decoded = jwt.decode(token, config.secret);
+        //verificando o usuário
         User.findOne({
             name: decoded.name
         }, function(err, user) {
             if (err) throw err;
+            //verificando se o usuário foi encontrado
             if (!user) {
+                // se não enviamos a falha de autenticação pois a token enviada não é referente a nenhum usuário
                 return res.status(403).send({
                     success: false,
                     msg: 'Falha na autenticação!'
                 });
             } else {
+                // caso a token é referente ao usuário nós inativamos ele
                 user.active = false;
+                //e salvamos-o
                 user.save(function() {
                     return res.status(200).send({
                         success: true,
@@ -175,6 +206,7 @@ apiRoutes.put('/inactivate', passport.authenticate('jwt', {
             }
         });
     } else {
+        //caso nenhuma token tenha sido enviada
         return res.status(403).send({
             success: false,
             msg: 'Nenhuma token foi enviada'
@@ -182,6 +214,50 @@ apiRoutes.put('/inactivate', passport.authenticate('jwt', {
     }
 });
 
+
+//inativando usuário
+apiRoutes.post('/active', passport.authenticate('jwt', {
+    session: false
+}), function(req, res) {
+  //separando a token
+    let token = getToken(req.headers);
+
+    //verificando se alguma token foi enviada
+    if (token) {
+        //descodificando a token, verificando-a e dando a 'decoded' todas as informações do usuário referente a tal token
+        let decoded = jwt.decode(token, config.secret);
+        //verificando o usuário
+        User.findOne({
+            name: decoded.name
+        }, function(err, user) {
+            if (err) throw err;
+            //verificando se o usuário foi encontrado
+            if (!user) {
+                // se não enviamos a falha de autenticação pois a token enviada não é referente a nenhum usuário
+                return res.status(403).send({
+                    success: false,
+                    msg: 'Falha na autenticação!'
+                });
+            } else {
+                // caso a token é referente ao usuário nós inativamos ele
+                user.active = true;
+                //e salvamos-o
+                user.save(function() {
+                    return res.status(200).send({
+                        success: true,
+                        msg: 'Usuário foi inativado' + user
+                    });
+                });
+            }
+        });
+    } else {
+        //caso nenhuma token tenha sido enviada
+        return res.status(403).send({
+            success: false,
+            msg: 'Nenhuma token foi enviada'
+        });
+    }
+});
 
 apiRoutes.put('/edit', passport.authenticate('jwt', {
     session: false
