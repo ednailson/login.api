@@ -1,11 +1,11 @@
-var JwtStrategy = require('passport-jwt').Strategy;
+const JwtStrategy = require('passport-jwt').Strategy;
 
-// load up the user model
-var User = require('../app/models/user');
-var config = require('../config/database'); // get db config file
+// model do usuario
+const User = require('../app/models/user');
+const config = require('../config/database'); // configuração do banco
 
 module.exports = function(passport) {
-  var opts = {};
+  let opts = {};
   opts.secretOrKey = config.secret;
   passport.use(new JwtStrategy(opts, function(jwt_payload, done) {
     User.findOne({id: jwt_payload.id}, function(err, user) {
