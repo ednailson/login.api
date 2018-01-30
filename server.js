@@ -262,23 +262,30 @@ apiRoutes.post('/active', passport.authenticate('jwt', {
 apiRoutes.put('/edit', passport.authenticate('jwt', {
     session: false
 }), function(req, res) {
+  //separando a token
     let token = getToken(req.headers);
     if (token) {
+        //descodificando a token, verificando-a e dando a 'decoded' todas as informações do usuário referente a tal token
         let decoded = jwt.decode(token, config.secret);
+        //procurando o usuário referente a token
         User.findOne({
             name: decoded.name
         }, function(err, user) {
             if (err) throw err;
             if (!user) {
+                //caso a token não seja referente a nenhum usuário
                 return res.status(403).send({
                     success: false,
                     msg: 'Falha na autenticação!'
                 });
             } else {
+                //atribuindo os atributos ao usuário referente a token
+                //o if é para verificar se tal atributo foi passado, se não, o usuário não é editado em tal atributo
                 if (req.body.email) user.email = req.body.email;
                 if (req.body.about) user.about = req.body.about;
                 if (req.body.age) user.age = req.body.age;
                 if (req.body.phone) user.phone = req.body.phone;
+                //salvando o usuário com as novas informações
                 user.save(function() {
                     return res.status(200).send({
                         success: true,
@@ -288,6 +295,7 @@ apiRoutes.put('/edit', passport.authenticate('jwt', {
             }
         });
     } else {
+        //caso nenhuma token tenha sido enviada
         return res.status(403).send({
             success: false,
             msg: 'Nenhuma token foi enviada'
@@ -295,7 +303,7 @@ apiRoutes.put('/edit', passport.authenticate('jwt', {
     }
 });
 
-
+//função para separar a token, já que ela vem com o JWT antes
 getToken = function(headers) {
     if (headers && headers.authorization) {
         let parted = headers.authorization.split(' ');
