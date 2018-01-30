@@ -1,13 +1,13 @@
-var express = require('express');
-var app = express();
-var bodyParser = require('body-parser');
-var morgan = require('morgan');
-var mongoose = require('mongoose');
-var passport = require('passport');
-var config = require('./config/database'); // Config do banco
-var User = require('./app/models/user'); // get the mongoose model
-var port = process.env.PORT || 8080;
-var jwt = require('jwt-simple');
+const express = require('express');
+const app = express();
+const bodyParser = require('body-parser');
+const morgan = require('morgan');
+const mongoose = require('mongoose');
+const passport = require('passport');
+const config = require('./config/database'); // Config do banco
+const User = require('./app/models/user'); // get the mongoose model
+const port = process.env.PORT || 8080;
+const jwt = require('jwt-simple');
 
 app.use(bodyParser.urlencoded({
     extended: false
@@ -36,7 +36,7 @@ mongoose.connect(config.database);
 require('./config/passport')(passport);
 
 // rotas
-var apiRoutes = express.Router();
+let apiRoutes = express.Router();
 
 
 
@@ -49,7 +49,7 @@ apiRoutes.post('/signup', function(req, res) {
             msg: 'Passe usuario, email e senha'
         });
     } else {
-        var newUser = new User({
+        let newUser = new User({
             name: req.body.name,
             password: req.body.password,
             email: req.body.email,
@@ -92,7 +92,7 @@ apiRoutes.post('/authenticate', function(req, res) {
             user.comparePassword(req.body.password, function(err, isMatch) {
                 if (isMatch && !err) {
                     // if user is found and password is right create a token
-                    var token = jwt.encode(user, config.secret);
+                    let token = jwt.encode(user, config.secret);
                     // return the information including token as JSON
                     res.json({
                         success: true,
@@ -113,10 +113,10 @@ apiRoutes.get('/userinfo', passport.authenticate('jwt', {
     session: false
 }), function(req, res) {
     console.log(req.headers);
-    var token = getToken(req.headers);
+    let token = getToken(req.headers);
     console.log(token);
     if (token) {
-        var decoded = jwt.decode(token, config.secret);
+        let decoded = jwt.decode(token, config.secret);
         User.findOne({
             name: decoded.name
         }, function(err, user) {
@@ -146,9 +146,9 @@ apiRoutes.get('/userinfo', passport.authenticate('jwt', {
 apiRoutes.put('/inactivate', passport.authenticate('jwt', {
     session: false
 }), function(req, res) {
-    var token = getToken(req.headers);
+    let token = getToken(req.headers);
     if (token) {
-        var decoded = jwt.decode(token, config.secret);
+        let decoded = jwt.decode(token, config.secret);
         User.findOne({
             name: decoded.name
         }, function(err, user) {
@@ -180,9 +180,9 @@ apiRoutes.put('/inactivate', passport.authenticate('jwt', {
 apiRoutes.put('/edit', passport.authenticate('jwt', {
     session: false
 }), function(req, res) {
-    var token = getToken(req.headers);
+    let token = getToken(req.headers);
     if (token) {
-        var decoded = jwt.decode(token, config.secret);
+        let decoded = jwt.decode(token, config.secret);
         User.findOne({
             name: decoded.name
         }, function(err, user) {
@@ -197,7 +197,6 @@ apiRoutes.put('/edit', passport.authenticate('jwt', {
                 if(req.body.about) user.about = req.body.about;
                 if(req.body.age) user.age = req.body.age;
                 if(req.body.phone) user.phone = req.body.phone;
-                console.log(user);
                 user.save(function() {
                     return res.status(200).send({
                         success: true,
@@ -217,7 +216,7 @@ apiRoutes.put('/edit', passport.authenticate('jwt', {
 
 getToken = function(headers) {
     if (headers && headers.authorization) {
-        var parted = headers.authorization.split(' ');
+        let parted = headers.authorization.split(' ');
         if (parted.length === 2) {
             return parted[1];
         } else {
