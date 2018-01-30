@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const bcrypt = require('bcrypt');
 
-// User Model
+// Model do Usuário
 let UserSchema = new Schema({
   name: {
         type: String,
@@ -14,7 +14,7 @@ let UserSchema = new Schema({
         required: true
     }
 });
-
+//Adicinando mais atributos
 UserSchema.add({
   email: 'string',
   about: 'string',
@@ -26,6 +26,7 @@ UserSchema.add({
   editPerm: 'Boolean'
   });
 
+//Criptografando a senha
 UserSchema.pre('save', function (next) {
     let user = this;
     if (this.isModified('password') || this.isNew) {
