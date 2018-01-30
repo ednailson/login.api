@@ -1,15 +1,17 @@
-var express     = require('express');
-var app         = express();
-var bodyParser  = require('body-parser');
-var morgan      = require('morgan');
-var mongoose    = require('mongoose');
-var passport	= require('passport');
-var config      = require('./config/database'); // Config do banco
-var User        = require('./app/models/user'); // get the mongoose model
-var port        = process.env.PORT || 8080;
-var jwt         = require('jwt-simple');
+var express = require('express');
+var app = express();
+var bodyParser = require('body-parser');
+var morgan = require('morgan');
+var mongoose = require('mongoose');
+var passport = require('passport');
+var config = require('./config/database'); // Config do banco
+var User = require('./app/models/user'); // get the mongoose model
+var port = process.env.PORT || 8080;
+var jwt = require('jwt-simple');
 
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({
+    extended: false
+}));
 app.use(bodyParser.json());
 
 // log to console
@@ -40,79 +42,190 @@ var apiRoutes = express.Router();
 
 // CADASTRO
 apiRoutes.post('/signup', function(req, res) {
-  if (!req.body.name || !req.body.password) {
-    res.json({success: false, msg: 'Passe usuario e senha'});
-  } else {
-    var newUser = new User({
-      name: req.body.name,
-      password: req.body.password
-    });
-    // save the user
-    newUser.save(function(err) {
-      if (err) {
-        return res.json({success: false, msg: 'Usuario ja existe'});
-      }
-      res.json({success: true, msg: 'Usuario criado com sucesso'});
-    });
-  }
+    if (!req.body.name || !req.body.password) {
+        console.log('Usuario e/ou senha faltando');
+        res.json({
+            success: false,
+            msg: 'Passe usuario, email e senha'
+        });
+    } else {
+        var newUser = new User({
+            name: req.body.name,
+            password: req.body.password,
+            email: req.body.email,
+            about: req.body.about,
+            age: req.body.age,
+            active: true,
+            phone: req.body.phone
+        });
+        // save the user
+        newUser.save(function(err) {
+            if (err) {
+                return res.json({
+                    success: false,
+                    msg: 'Usuario ja existente'
+                });
+            } else {
+                res.json({
+                    success: true,
+                    msg: 'Usuario criado com sucesso'
+                });
+            }
+        });
+    }
 });
 
 
 apiRoutes.post('/authenticate', function(req, res) {
-  User.findOne({
-    name: req.body.name
-  }, function(err, user) {
-    if (err) throw err;
-
-    if (!user) {
-      res.send({success: false, msg: 'Authentication failed. User not found.'});
-    } else {
-      // check if password matches
-      user.comparePassword(req.body.password, function (err, isMatch) {
-        if (isMatch && !err) {
-          // if user is found and password is right create a token
-          var token = jwt.encode(user, config.secret);
-          // return the information including token as JSON
-          res.json({success: true, token: 'JWT ' + token});
-        } else {
-          res.send({success: false, msg: 'Authentication failed. Wrong password.'});
-        }
-      });
-    }
-  });
-});
-
-apiRoutes.get('/memberinfo', passport.authenticate('jwt', { session: false}), function(req, res) {
-  var token = getToken(req.headers);
-  if (token) {
-    var decoded = jwt.decode(token, config.secret);
     User.findOne({
-      name: decoded.name
+        name: req.body.name
     }, function(err, user) {
         if (err) throw err;
 
         if (!user) {
-          return res.status(403).send({success: false, msg: 'Authentication failed. User not found.'});
+            res.send({
+                success: false,
+                msg: 'Usuário não encontrado'
+            });
         } else {
-          res.json({success: true, msg: 'Welcome in the member area ' + user.name + '!', user: user});
+            // check if password matches
+            user.comparePassword(req.body.password, function(err, isMatch) {
+                if (isMatch && !err) {
+                    // if user is found and password is right create a token
+                    var token = jwt.encode(user, config.secret);
+                    // return the information including token as JSON
+                    res.json({
+                        success: true,
+                        token: 'JWT ' + token
+                    });
+                } else {
+                    res.send({
+                        success: false,
+                        msg: 'Senha incorreta!'
+                    });
+                }
+            });
         }
     });
-  } else {
-    return res.status(403).send({success: false, msg: 'No token provided.'});
-  }
 });
 
-getToken = function (headers) {
-  if (headers && headers.authorization) {
-    var parted = headers.authorization.split(' ');
-    if (parted.length === 2) {
-      return parted[1];
+apiRoutes.get('/userinfo', passport.authenticate('jwt', {
+    session: false
+}), function(req, res) {
+    console.log(req.headers);
+    var token = getToken(req.headers);
+    console.log(token);
+    if (token) {
+        var decoded = jwt.decode(token, config.secret);
+        User.findOne({
+            name: decoded.name
+        }, function(err, user) {
+            if (err) throw err;
+
+            if (!user) {
+                return res.status(403).send({
+                    success: false,
+                    msg: 'Falha na autenticação!'
+                });
+            } else {
+                res.json({
+                    success: true,
+                    msg: 'Bem vindo a area dos membros' + user.name + '!',
+                    user: user
+                });
+            }
+        });
     } else {
-      return null;
+        return res.status(403).send({
+            success: false,
+            msg: 'Nenhuma token foi enviada'
+        });
     }
-  } else {
-    return null;
-  }
+});
+
+apiRoutes.put('/inactivate', passport.authenticate('jwt', {
+    session: false
+}), function(req, res) {
+    var token = getToken(req.headers);
+    if (token) {
+        var decoded = jwt.decode(token, config.secret);
+        User.findOne({
+            name: decoded.name
+        }, function(err, user) {
+            if (err) throw err;
+            if (!user) {
+                return res.status(403).send({
+                    success: false,
+                    msg: 'Falha na autenticação!'
+                });
+            } else {
+                user.active = false;
+                user.save(function() {
+                    return res.status(200).send({
+                        success: true,
+                        msg: 'Usuário foi inativado' + user
+                    });
+                });
+            }
+        });
+    } else {
+        return res.status(403).send({
+            success: false,
+            msg: 'Nenhuma token foi enviada'
+        });
+    }
+});
+
+
+apiRoutes.put('/edit', passport.authenticate('jwt', {
+    session: false
+}), function(req, res) {
+    var token = getToken(req.headers);
+    if (token) {
+        var decoded = jwt.decode(token, config.secret);
+        User.findOne({
+            name: decoded.name
+        }, function(err, user) {
+            if (err) throw err;
+            if (!user) {
+                return res.status(403).send({
+                    success: false,
+                    msg: 'Falha na autenticação!'
+                });
+            } else {
+                if(req.body.email) user.email = req.body.email;
+                if(req.body.about) user.about = req.body.about;
+                if(req.body.age) user.age = req.body.age;
+                if(req.body.phone) user.phone = req.body.phone;
+                console.log(user);
+                user.save(function() {
+                    return res.status(200).send({
+                        success: true,
+                        msg: 'Usuário ' + user.name + ' foi editado'
+                    });
+                });
+            }
+        });
+    } else {
+        return res.status(403).send({
+            success: false,
+            msg: 'Nenhuma token foi enviada'
+        });
+    }
+});
+
+
+getToken = function(headers) {
+    if (headers && headers.authorization) {
+        var parted = headers.authorization.split(' ');
+        if (parted.length === 2) {
+            return parted[1];
+        } else {
+            return null;
+        }
+    } else {
+        return null;
+    }
 };
 
 // connect the api routes under /api/*

@@ -2,7 +2,7 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var bcrypt = require('bcrypt');
 
-// set up a mongoose model
+// User Model
 var UserSchema = new Schema({
   name: {
         type: String,
@@ -14,6 +14,17 @@ var UserSchema = new Schema({
         required: true
     }
 });
+
+UserSchema.add({
+  email: 'string',
+  about: 'string',
+  age: 'number',
+  active: 'Boolean',
+  phone: 'number',
+  postPerm: 'Boolean',
+  sendEmailPerm: 'Boolean',
+  editPerm: 'Boolean'
+  });
 
 UserSchema.pre('save', function (next) {
     var user = this;
