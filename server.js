@@ -215,7 +215,7 @@ apiRoutes.post('/inactivate', passport.authenticate('jwt', {
 });
 
 
-//inativando usuário
+//ativando usuário
 apiRoutes.post('/active', passport.authenticate('jwt', {
     session: false
 }), function(req, res) {
@@ -280,7 +280,7 @@ apiRoutes.put('/edit', passport.authenticate('jwt', {
                 });
             } else {
                 //atribuindo os atributos ao usuário referente a token
-                //o if é para verificar se tal atributo foi passado, se não, o usuário não é editado em tal atributo
+                //o if abaixo é para verificar se tal atributo foi passado, se não, o usuário não é editado em tal atributo
                 if (req.body.email) user.email = req.body.email;
                 if (req.body.about) user.about = req.body.about;
                 if (req.body.age) user.age = req.body.age;
