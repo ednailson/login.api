@@ -200,7 +200,7 @@ apiRoutes.post('/inactivate', passport.authenticate('jwt', {
                 user.save(function() {
                     return res.status(200).send({
                         success: true,
-                        msg: 'Usuário foi inativado' + user
+                        msg: 'Usuário ' + user.name + ' foi inativado'
                     });
                 });
             }
@@ -245,7 +245,7 @@ apiRoutes.post('/active', passport.authenticate('jwt', {
                 user.save(function() {
                     return res.status(200).send({
                         success: true,
-                        msg: 'Usuário foi inativado' + user
+                        msg: 'Usuário ' + user.name + ' foi ativado'
                     });
                 });
             }
