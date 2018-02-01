@@ -5,19 +5,19 @@ angular.module('my.services', ['ngRoute','my.controllers', 'my.routes'])
   let isAuthenticated = false;
   let authToken;
 
-  function loadUserCredentials() {
+  function getToken() {
     let token = window.localStorage.getItem(LOCAL_TOKEN_KEY);
     if (token) {
-      useCredentials(token);
+      useToken(token);
     }
   }
 
-  function storeUserCredentials(token) {
+  function setToken(token) {
     window.localStorage.setItem(LOCAL_TOKEN_KEY, token);
-    useCredentials(token);
+    useToken(token);
   }
 
-  function useCredentials(token) {
+  function useToken(token) {
     isAuthenticated = true;
     authToken = token;
 
@@ -25,7 +25,7 @@ angular.module('my.services', ['ngRoute','my.controllers', 'my.routes'])
     $http.defaults.headers.common.Authorization = authToken;
   }
 
-  function destroyUserCredentials() {
+  function deleteToken() {
     authToken = undefined;
     isAuthenticated = false;
     $http.defaults.headers.common.Authorization = undefined;
@@ -48,7 +48,7 @@ angular.module('my.services', ['ngRoute','my.controllers', 'my.routes'])
     return $q(function(resolve, reject) {
       $http.post(API_ENDPOINT.url + '/authenticate', user).then(function(result) {
         if (result.data.success) {
-          storeUserCredentials(result.data.token);
+          setToken(result.data.token);
           resolve(result.data.msg);
         } else {
           console.log('to see');
@@ -59,10 +59,10 @@ angular.module('my.services', ['ngRoute','my.controllers', 'my.routes'])
   };
 
   let logout = function() {
-    destroyUserCredentials();
+    deleteToken();
   };
 
-  loadUserCredentials();
+  getToken();
 
   return {
     login: login,
