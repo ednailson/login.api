@@ -60,7 +60,10 @@ apiRoutes.post('/signup', function(req, res) {
             about: req.body.about,
             age: req.body.age,
             active: true,
-            phone: req.body.phone
+            phone: req.body.phone,
+            sendEmailPerm: true,
+            postPerm: true,
+            editPerm: true
         });
         // salvando newUser
         newUser.save(function(err) {
@@ -150,13 +153,12 @@ apiRoutes.get('/userinfo', passport.authenticate('jwt', {
                         msg: 'Bem vindo a area dos membros' + user.name + '!',
                         user: user
                     });
-                }
-                else{
-                  //caso o usuário esteja inativo
-                  res.json({
-                      success: true,
-                      msg: 'Usuario ' + user.name + ' está inativo! Ative-o para buscar suas informações'
-                  });
+                } else {
+                    //caso o usuário esteja inativo
+                    res.json({
+                        success: true,
+                        msg: 'Usuario ' + user.name + ' está inativo! Ative-o para buscar suas informações'
+                    });
                 }
             }
         });
@@ -171,10 +173,12 @@ apiRoutes.get('/userinfo', passport.authenticate('jwt', {
 
 
 //inativando usuário
-apiRoutes.post('/inactivate', passport.authenticate('jwt', {
+apiRoutes.post('/inactivate/:action', passport.authenticate('jwt', {
     session: false
 }), function(req, res) {
-  //separando a token
+
+    let parameter = req.params.action;
+    //separando a token
     let token = getToken(req.headers);
 
     //verificando se alguma token foi enviada
@@ -194,15 +198,52 @@ apiRoutes.post('/inactivate', passport.authenticate('jwt', {
                     msg: 'Falha na autenticação!'
                 });
             } else {
-                // caso a token é referente ao usuário nós inativamos ele
-                user.active = false;
-                //e salvamos-o
-                user.save(function() {
-                    return res.status(200).send({
-                        success: true,
-                        msg: 'Usuário ' + user.name + ' foi inativado'
-                    });
-                });
+              if (parameter == 'user') {
+                  // caso a token é referente ao usuário nós inativamos ele
+                  user.active = false;
+                  //e salvamos-o
+                  user.save(function() {
+                      return res.status(200).send({
+                          success: true,
+                          msg: 'Usuário ' + user.name + ' foi ativado'
+                      });
+                  });
+              } else if (parameter == 'post') {
+                  // caso a token é referente ao usuário nós inativamos ele
+                  user.postPerm = false;
+                  //e salvamos-o
+                  user.save(function() {
+                      return res.status(200).send({
+                          success: true,
+                          msg: 'Permissão para post do usuário  ' + user.name + ' foi concebida!'
+                      });
+                  });
+              } else if (parameter == 'sendEmail') {
+                  // caso a token é referente ao usuário nós inativamos ele
+                  user.sendEmailPerm = false;
+                  //e salvamos-o
+                  user.save(function() {
+                      return res.status(200).send({
+                          success: true,
+                          msg: 'Permissão para enviar e-mail do usuário  ' + user.name + ' foi concebida!'
+                      });
+                  });
+              } else if (parameter == 'edit') {
+                  // caso a token é referente ao usuário nós inativamos ele
+                  user.editPerm = false;
+                  //e salvamos-o
+                  user.save(function() {
+                      return res.status(200).send({
+                          success: true,
+                          msg: 'Permissão para editar do usuário  ' + user.name + ' foi concebida!'
+                      });
+                  });
+              } else {
+                  return res.status(403).send({
+                      success: false,
+                      msg: 'Nenhuma ação foi reconhecida'
+                  })
+              }
             }
         });
     } else {
@@ -219,7 +260,7 @@ apiRoutes.post('/inactivate', passport.authenticate('jwt', {
 apiRoutes.post('/active/:action', passport.authenticate('jwt', {
     session: false
 }), function(req, res) {
-  //separando a token
+    //separando a token
     let parameter = req.params.action;
     let token = getToken(req.headers);
 
@@ -240,17 +281,52 @@ apiRoutes.post('/active/:action', passport.authenticate('jwt', {
                     msg: 'Falha na autenticação!'
                 });
             } else {
-                if(parameter=='user'){
-                // caso a token é referente ao usuário nós inativamos ele
-                user.active = true;
-                //e salvamos-o
-                user.save(function() {
-                    return res.status(200).send({
-                        success: true,
-                        msg: 'Usuário ' + user.name + ' foi ativado'
+                if (parameter == 'user') {
+                    // caso a token é referente ao usuário nós inativamos ele
+                    user.active = true;
+                    //e salvamos-o
+                    user.save(function() {
+                        return res.status(200).send({
+                            success: true,
+                            msg: 'Usuário ' + user.name + ' foi ativado'
+                        });
                     });
-                });
-              }
+                } else if (parameter == 'post') {
+                    // caso a token é referente ao usuário nós inativamos ele
+                    user.postPerm = true;
+                    //e salvamos-o
+                    user.save(function() {
+                        return res.status(200).send({
+                            success: true,
+                            msg: 'Permissão para post do usuário  ' + user.name + ' foi concebida!'
+                        });
+                    });
+                } else if (parameter == 'sendEmail') {
+                    // caso a token é referente ao usuário nós inativamos ele
+                    user.sendEmailPerm = true;
+                    //e salvamos-o
+                    user.save(function() {
+                        return res.status(200).send({
+                            success: true,
+                            msg: 'Permissão para enviar e-mail do usuário  ' + user.name + ' foi concebida!'
+                        });
+                    });
+                } else if (parameter == 'edit') {
+                    // caso a token é referente ao usuário nós inativamos ele
+                    user.editPerm = true;
+                    //e salvamos-o
+                    user.save(function() {
+                        return res.status(200).send({
+                            success: true,
+                            msg: 'Permissão para editar do usuário  ' + user.name + ' foi concebida!'
+                        });
+                    });
+                } else {
+                    return res.status(403).send({
+                        success: false,
+                        msg: 'Nenhuma ação foi reconhecida'
+                    })
+                }
             }
         });
     } else {
@@ -265,7 +341,7 @@ apiRoutes.post('/active/:action', passport.authenticate('jwt', {
 apiRoutes.put('/edit', passport.authenticate('jwt', {
     session: false
 }), function(req, res) {
-  //separando a token
+    //separando a token
     let token = getToken(req.headers);
     if (token) {
         //descodificando a token, verificando-a e dando a 'decoded' todas as informações do usuário referente a tal token
