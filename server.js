@@ -1,13 +1,13 @@
-var express = require('express');
-var app = express();
-var bodyParser = require('body-parser');
-var morgan = require('morgan');
-var mongoose = require('mongoose');
-var passport = require('passport');
-var config = require('./config/database'); // Config do banco
-var User = require('./app/models/user'); // get the mongoose model
-var port = process.env.PORT || 8080;
-var jwt = require('jwt-simple');
+const express = require('express');
+const app = express();
+const bodyParser = require('body-parser');
+const morgan = require('morgan');
+const mongoose = require('mongoose');
+const passport = require('passport');
+const config = require('./config/database'); // Config do banco
+const User = require('./app/models/user'); // get the mongoose model
+const port = process.env.PORT || 8080;
+const jwt = require('jwt-simple');
 
 app.use(bodyParser.urlencoded({
     extended: false
@@ -25,7 +25,7 @@ app.use(passport.initialize());
 //   res.send('A API está em http://localhost:' + port + '/api');
 // });
 
-//Pasta front-end: WWW
+//Pasta: WWW
 app.use('/', express.static(__dirname + '/www'));
 
 
@@ -36,36 +36,45 @@ mongoose.connect(config.database);
 require('./config/passport')(passport);
 
 // rotas
-var apiRoutes = express.Router();
+let apiRoutes = express.Router();
 
 
 
 // CADASTRO
 apiRoutes.post('/signup', function(req, res) {
+
     if (!req.body.name || !req.body.password) {
+        // se não há usuário e/ou senha
         console.log('Usuario e/ou senha faltando');
+        // resposta
         res.json({
             success: false,
-            msg: 'Passe usuario, email e senha'
+            msg: 'Passe usuario e senha'
         });
     } else {
-        var newUser = new User({
+        // inserindo informações do 'request' a 'newUser' para salva-lo no banco
+        let newUser = new User({
             name: req.body.name,
             password: req.body.password,
             email: req.body.email,
             about: req.body.about,
             age: req.body.age,
             active: true,
-            phone: req.body.phone
+            phone: req.body.phone,
+            sendEmailPerm: true,
+            postPerm: true,
+            editPerm: true
         });
-        // save the user
+        // salvando newUser
         newUser.save(function(err) {
             if (err) {
+                //indica que o usuário já existe, o que não pode ocorrer.
                 return res.json({
                     success: false,
                     msg: 'Usuario ja existente'
                 });
             } else {
+                // sucesso ao criar o usuário
                 res.json({
                     success: true,
                     msg: 'Usuario criado com sucesso'
@@ -75,30 +84,33 @@ apiRoutes.post('/signup', function(req, res) {
     }
 });
 
-
+//Autenticação (verificação do usuário e da senha)
 apiRoutes.post('/authenticate', function(req, res) {
+    //verificando se há algum usuário com o usuário enviado
     User.findOne({
         name: req.body.name
     }, function(err, user) {
+        //se houve algum erro
         if (err) throw err;
-
+        //verificando se o usuário foi encontrado, se não, entra nesse if
         if (!user) {
             res.send({
                 success: false,
                 msg: 'Usuário não encontrado'
             });
         } else {
-            // check if password matches
+            // verificando se as senhas coincidem, isso é feito no metodo comparePassword em user.js
             user.comparePassword(req.body.password, function(err, isMatch) {
                 if (isMatch && !err) {
-                    // if user is found and password is right create a token
-                    var token = jwt.encode(user, config.secret);
-                    // return the information including token as JSON
+                    // se as senhas se coincidem nós criamos uma token, para o acesso na api
+                    let token = jwt.encode(user, config.secret);
+                    // retorna a token e a informação que a autenticação foi realizada com sucesso
                     res.json({
                         success: true,
                         token: 'JWT ' + token
                     });
                 } else {
+                    //caso a senha informada não coincida
                     res.send({
                         success: false,
                         msg: 'Senha incorreta!'
@@ -112,30 +124,46 @@ apiRoutes.post('/authenticate', function(req, res) {
 apiRoutes.get('/userinfo', passport.authenticate('jwt', {
     session: false
 }), function(req, res) {
-    console.log(req.headers);
-    var token = getToken(req.headers);
-    console.log(token);
+
+    //separando a token
+    let token = getToken(req.headers);
+
+    // se alguma token foi enviada
     if (token) {
-        var decoded = jwt.decode(token, config.secret);
+
+        //descodificando a token, verificando-a e dando a 'decoded' todas as informações do usuário referente a tal token
+        let decoded = jwt.decode(token, config.secret);
+        //verificando se existe o usuário
         User.findOne({
             name: decoded.name
         }, function(err, user) {
             if (err) throw err;
-
+            //caso o usuário não seja encontrado
             if (!user) {
                 return res.status(403).send({
                     success: false,
                     msg: 'Falha na autenticação!'
                 });
             } else {
-                res.json({
-                    success: true,
-                    msg: 'Bem vindo a area dos membros' + user.name + '!',
-                    user: user
-                });
+                //se o usuário foi encontrado nós verificamos aqui se ele está ativo
+                if (user.active) {
+                    //caso o usuário esteja ativo nós retornamos suas informações
+                    res.json({
+                        success: true,
+                        msg: 'Bem vindo a area dos membros' + user.name + '!',
+                        user: user
+                    });
+                } else {
+                    //caso o usuário esteja inativo
+                    res.json({
+                        success: true,
+                        msg: 'Usuario ' + user.name + ' está inativo! Ative-o para buscar suas informações'
+                    });
+                }
             }
         });
     } else {
+        //caso nenhuma token tenha sido enviada
         return res.status(403).send({
             success: false,
             msg: 'Nenhuma token foi enviada'
@@ -143,32 +171,83 @@ apiRoutes.get('/userinfo', passport.authenticate('jwt', {
     }
 });
 
-apiRoutes.put('/inactivate', passport.authenticate('jwt', {
+
+//inativando usuário
+apiRoutes.post('/inactivate/:action', passport.authenticate('jwt', {
     session: false
 }), function(req, res) {
-    var token = getToken(req.headers);
+
+    let parameter = req.params.action;
+    //separando a token
+    let token = getToken(req.headers);
+
+    //verificando se alguma token foi enviada
     if (token) {
-        var decoded = jwt.decode(token, config.secret);
+        //descodificando a token, verificando-a e dando a 'decoded' todas as informações do usuário referente a tal token
+        let decoded = jwt.decode(token, config.secret);
+        //verificando o usuário
         User.findOne({
             name: decoded.name
         }, function(err, user) {
             if (err) throw err;
+            //verificando se o usuário foi encontrado
             if (!user) {
+                // se não enviamos a falha de autenticação pois a token enviada não é referente a nenhum usuário
                 return res.status(403).send({
                     success: false,
                     msg: 'Falha na autenticação!'
                 });
             } else {
-                user.active = false;
-                user.save(function() {
-                    return res.status(200).send({
-                        success: true,
-                        msg: 'Usuário foi inativado' + user
-                    });
-                });
+              if (parameter == 'user') {
+                  // caso a token é referente ao usuário nós inativamos ele
+                  user.active = false;
+                  //e salvamos-o
+                  user.save(function() {
+                      return res.status(200).send({
+                          success: true,
+                          msg: 'Usuário ' + user.name + ' foi ativado'
+                      });
+                  });
+              } else if (parameter == 'post') {
+                  // caso a token é referente ao usuário nós inativamos ele
+                  user.postPerm = false;
+                  //e salvamos-o
+                  user.save(function() {
+                      return res.status(200).send({
+                          success: true,
+                          msg: 'Permissão para post do usuário  ' + user.name + ' foi concebida!'
+                      });
+                  });
+              } else if (parameter == 'sendEmail') {
+                  // caso a token é referente ao usuário nós inativamos ele
+                  user.sendEmailPerm = false;
+                  //e salvamos-o
+                  user.save(function() {
+                      return res.status(200).send({
+                          success: true,
+                          msg: 'Permissão para enviar e-mail do usuário  ' + user.name + ' foi concebida!'
+                      });
+                  });
+              } else if (parameter == 'edit') {
+                  // caso a token é referente ao usuário nós inativamos ele
+                  user.editPerm = false;
+                  //e salvamos-o
+                  user.save(function() {
+                      return res.status(200).send({
+                          success: true,
+                          msg: 'Permissão para editar do usuário  ' + user.name + ' foi concebida!'
+                      });
+                  });
+              } else {
+                  return res.status(403).send({
+                      success: false,
+                      msg: 'Nenhuma ação foi reconhecida'
+                  })
+              }
             }
         });
     } else {
+        //caso nenhuma token tenha sido enviada
         return res.status(403).send({
             success: false,
             msg: 'Nenhuma token foi enviada'
@@ -176,28 +255,116 @@ apiRoutes.put('/inactivate', passport.authenticate('jwt', {
     }
 });
 
+
+//ativando usuário
+apiRoutes.post('/active/:action', passport.authenticate('jwt', {
+    session: false
+}), function(req, res) {
+    //separando a token
+    let parameter = req.params.action;
+    let token = getToken(req.headers);
+
+    //verificando se alguma token foi enviada
+    if (token) {
+        //descodificando a token, verificando-a e dando a 'decoded' todas as informações do usuário referente a tal token
+        let decoded = jwt.decode(token, config.secret);
+        //verificando o usuário
+        User.findOne({
+            name: decoded.name
+        }, function(err, user) {
+            if (err) throw err;
+            //verificando se o usuário foi encontrado
+            if (!user) {
+                // se não enviamos a falha de autenticação pois a token enviada não é referente a nenhum usuário
+                return res.status(403).send({
+                    success: false,
+                    msg: 'Falha na autenticação!'
+                });
+            } else {
+                if (parameter == 'user') {
+                    // caso a token é referente ao usuário nós inativamos ele
+                    user.active = true;
+                    //e salvamos-o
+                    user.save(function() {
+                        return res.status(200).send({
+                            success: true,
+                            msg: 'Usuário ' + user.name + ' foi ativado'
+                        });
+                    });
+                } else if (parameter == 'post') {
+                    // caso a token é referente ao usuário nós inativamos ele
+                    user.postPerm = true;
+                    //e salvamos-o
+                    user.save(function() {
+                        return res.status(200).send({
+                            success: true,
+                            msg: 'Permissão para post do usuário  ' + user.name + ' foi concebida!'
+                        });
+                    });
+                } else if (parameter == 'sendEmail') {
+                    // caso a token é referente ao usuário nós inativamos ele
+                    user.sendEmailPerm = true;
+                    //e salvamos-o
+                    user.save(function() {
+                        return res.status(200).send({
+                            success: true,
+                            msg: 'Permissão para enviar e-mail do usuário  ' + user.name + ' foi concebida!'
+                        });
+                    });
+                } else if (parameter == 'edit') {
+                    // caso a token é referente ao usuário nós inativamos ele
+                    user.editPerm = true;
+                    //e salvamos-o
+                    user.save(function() {
+                        return res.status(200).send({
+                            success: true,
+                            msg: 'Permissão para editar do usuário  ' + user.name + ' foi concebida!'
+                        });
+                    });
+                } else {
+                    return res.status(403).send({
+                        success: false,
+                        msg: 'Nenhuma ação foi reconhecida'
+                    })
+                }
+            }
+        });
+    } else {
+        //caso nenhuma token tenha sido enviada
+        return res.status(403).send({
+            success: false,
+            msg: 'Nenhuma token foi enviada'
+        });
+    }
+});
 
 apiRoutes.put('/edit', passport.authenticate('jwt', {
     session: false
 }), function(req, res) {
-    var token = getToken(req.headers);
+    //separando a token
+    let token = getToken(req.headers);
     if (token) {
-        var decoded = jwt.decode(token, config.secret);
+        //descodificando a token, verificando-a e dando a 'decoded' todas as informações do usuário referente a tal token
+        let decoded = jwt.decode(token, config.secret);
+        //procurando o usuário referente a token
         User.findOne({
             name: decoded.name
         }, function(err, user) {
             if (err) throw err;
             if (!user) {
+                //caso a token não seja referente a nenhum usuário
                 return res.status(403).send({
                     success: false,
                     msg: 'Falha na autenticação!'
                 });
             } else {
-                if(req.body.email) user.email = req.body.email;
-                if(req.body.about) user.about = req.body.about;
-                if(req.body.age) user.age = req.body.age;
-                if(req.body.phone) user.phone = req.body.phone;
-                console.log(user);
+                //atribuindo os atributos ao usuário referente a token
+                //o if abaixo é para verificar se tal atributo foi passado, se não, o usuário não é editado em tal atributo
+                if (req.body.email) user.email = req.body.email;
+                if (req.body.about) user.about = req.body.about;
+                if (req.body.age) user.age = req.body.age;
+                if (req.body.phone) user.phone = req.body.phone;
+                //salvando o usuário com as novas informações
                 user.save(function() {
                     return res.status(200).send({
                         success: true,
@@ -207,6 +374,7 @@ apiRoutes.put('/edit', passport.authenticate('jwt', {
             }
         });
     } else {
+        //caso nenhuma token tenha sido enviada
         return res.status(403).send({
             success: false,
             msg: 'Nenhuma token foi enviada'
@@ -214,10 +382,10 @@ apiRoutes.put('/edit', passport.authenticate('jwt', {
     }
 });
 
-
+//função para separar a token, já que ela vem com o JWT antes
 getToken = function(headers) {
     if (headers && headers.authorization) {
-        var parted = headers.authorization.split(' ');
+        let parted = headers.authorization.split(' ');
         if (parted.length === 2) {
             return parted[1];
         } else {

@@ -1,23 +1,23 @@
 angular.module('my.services', ['ngRoute','my.controllers', 'my.routes'])
 
 .service('AuthService', function($q, $http, API_ENDPOINT) {
-  var LOCAL_TOKEN_KEY = 'token';
-  var isAuthenticated = false;
-  var authToken;
+  let LOCAL_TOKEN_KEY = 'token';
+  let isAuthenticated = false;
+  let authToken;
 
-  function loadUserCredentials() {
-    var token = window.localStorage.getItem(LOCAL_TOKEN_KEY);
+  function getToken() {
+    let token = window.localStorage.getItem(LOCAL_TOKEN_KEY);
     if (token) {
-      useCredentials(token);
+      useToken(token);
     }
   }
 
-  function storeUserCredentials(token) {
+  function setToken(token) {
     window.localStorage.setItem(LOCAL_TOKEN_KEY, token);
-    useCredentials(token);
+    useToken(token);
   }
 
-  function useCredentials(token) {
+  function useToken(token) {
     isAuthenticated = true;
     authToken = token;
 
@@ -25,14 +25,14 @@ angular.module('my.services', ['ngRoute','my.controllers', 'my.routes'])
     $http.defaults.headers.common.Authorization = authToken;
   }
 
-  function destroyUserCredentials() {
+  function deleteToken() {
     authToken = undefined;
     isAuthenticated = false;
     $http.defaults.headers.common.Authorization = undefined;
     window.localStorage.removeItem(LOCAL_TOKEN_KEY);
   }
 
-  var register = function(user) {
+  let register = function(user) {
     return $q(function(resolve, reject) {
       $http.post(API_ENDPOINT.url + '/signup', user).then(function(result) {
         if (result.data.success) {
@@ -44,11 +44,11 @@ angular.module('my.services', ['ngRoute','my.controllers', 'my.routes'])
     });
   };
 
-  var login = function(user) {
+  let login = function(user) {
     return $q(function(resolve, reject) {
       $http.post(API_ENDPOINT.url + '/authenticate', user).then(function(result) {
         if (result.data.success) {
-          storeUserCredentials(result.data.token);
+          setToken(result.data.token);
           resolve(result.data.msg);
         } else {
           console.log('to see');
@@ -58,11 +58,11 @@ angular.module('my.services', ['ngRoute','my.controllers', 'my.routes'])
     });
   };
 
-  var logout = function() {
-    destroyUserCredentials();
+  let logout = function() {
+    deleteToken();
   };
 
-  loadUserCredentials();
+  getToken();
 
   return {
     login: login,

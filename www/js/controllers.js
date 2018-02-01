@@ -53,17 +53,21 @@ angular.module('my.controllers', ['ngRoute', 'my.routes','my.services'])
 
 
   $scope.getInfo = function(){
+    
     $http.get(API_ENDPOINT.url + '/userinfo').then(function(result){
-      $scope.userinfo = result.data.msg;
+      $scope.getInfoMsg = result.data.msg;
+      $scope.userinfo = result.data.user;
     })
   };
+
+  $scope.getInfo();
 
   //função para o logout
   $scope.logout = function(){
     AuthService.logout();
     location.replace('#/');
   };
-  
+
 })
 
 .controller('EditCtrl', function($scope, $rootScope, AuthService, API_ENDPOINT, $http, $location){
