@@ -216,10 +216,11 @@ apiRoutes.post('/inactivate', passport.authenticate('jwt', {
 
 
 //ativando usuário
-apiRoutes.post('/active', passport.authenticate('jwt', {
+apiRoutes.post('/active/:action', passport.authenticate('jwt', {
     session: false
 }), function(req, res) {
   //separando a token
+    let parameter = req.params.action;
     let token = getToken(req.headers);
 
     //verificando se alguma token foi enviada
@@ -239,6 +240,7 @@ apiRoutes.post('/active', passport.authenticate('jwt', {
                     msg: 'Falha na autenticação!'
                 });
             } else {
+                if(parameter=='user'){
                 // caso a token é referente ao usuário nós inativamos ele
                 user.active = true;
                 //e salvamos-o
@@ -248,6 +250,7 @@ apiRoutes.post('/active', passport.authenticate('jwt', {
                         msg: 'Usuário ' + user.name + ' foi ativado'
                     });
                 });
+              }
             }
         });
     } else {
