@@ -76,8 +76,11 @@ user: JSON
 ##### metodo: POST
 
 http://localhost:8080/api/inactivate/user - Inativa usuário
+
 http://localhost:8080/api/inactivate/post - Inativa a ação de post
+
 http://localhost:8080/api/inactivate/sendEmail - Inativa a ação de enviar e-mail
+
 http://localhost:8080/api/inactivate/edit - Inativa a ação de editar o usuário
 
 ``` bash
@@ -91,8 +94,11 @@ token (gerada na autenticação)
 ##### metodo: POST
 
 http://localhost:8080/api/active/user - Ativa usuário
+
 http://localhost:8080/api/active/post - Ativa a ação de post
+
 http://localhost:8080/api/active/sendEmail - Ativa a ação de enviar e-mail
+
 http://localhost:8080/api/active/edit - Ativa a ação de editar o usuário
 
 ``` bash
