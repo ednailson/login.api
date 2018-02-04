@@ -357,20 +357,40 @@ apiRoutes.put('/edit', passport.authenticate('jwt', {
                     success: false,
                     msg: 'Falha na autenticação!'
                 });
+            }
+            if (!user.active){
+              //verificando se o usuário está ativo
+              return res.status(403).send({
+                  success: false,
+                  msg: 'Usuário inativo'
+              });
             } else {
+              //verificando se o usuário tem permissão de editar
+              if(user.editPerm==true){
+
                 //atribuindo os atributos ao usuário referente a token
                 //o if abaixo é para verificar se tal atributo foi passado, se não, o usuário não é editado em tal atributo
+
                 if (req.body.email) user.email = req.body.email;
                 if (req.body.about) user.about = req.body.about;
                 if (req.body.age) user.age = req.body.age;
                 if (req.body.phone) user.phone = req.body.phone;
+
                 //salvando o usuário com as novas informações
+
                 user.save(function() {
                     return res.status(200).send({
                         success: true,
                         msg: 'Usuário ' + user.name + ' foi editado'
                     });
                 });
+              }
+              else{
+                return res.status(403).send({
+                    success: false,
+                    msg: 'Usuário ' + user.name + ' não possui permissão para ser editado'
+                });
+              }
             }
         });
     } else {
