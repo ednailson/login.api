@@ -1,7 +1,2 @@
 node_modules
-var
-public/assets
-vendor
-.settings
-.project
-*.log
+.git
