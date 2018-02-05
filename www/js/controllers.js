@@ -51,27 +51,11 @@ angular.module('my.controllers', ['ngRoute', 'my.routes','my.services'])
   if (!window.localStorage.getItem('token')) window.location = "#/";
   $rootScope.alertRegister = null; //Controle para sumir alerta na home caso a view seja mudada
 
-
-  $scope.getInfo = function(){
-    
-    $http.get(API_ENDPOINT.url + '/userinfo').then(function(result){
-      $scope.getInfoMsg = result.data.msg;
-      $scope.userinfo = result.data.user;
-    })
-  };
-
-  $scope.getInfo();
-
   //função para o logout
   $scope.logout = function(){
     AuthService.logout();
     location.replace('#/');
   };
-
-})
-
-.controller('EditCtrl', function($scope, $rootScope, AuthService, API_ENDPOINT, $http, $location){
-  if (!window.localStorage.getItem('token')) window.location = "#/";
 
 })
 

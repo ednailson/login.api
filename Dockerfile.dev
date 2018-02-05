@@ -1,0 +1,9 @@
+FROM alpine
+
+WORKDIR /Documentos/GitHub/kofre-nTopus
+
+CMD [ "sh" ]
+
+RUN npm install
+
+RUN nodemon server.js

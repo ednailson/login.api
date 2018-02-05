@@ -18,9 +18,5 @@ angular.module('my.routes', ['ngRoute','my.controllers','my.services'])
     templateUrl : "/templates/user.html",
     controller: "UserCtrl"
   })
-  .when("/edit", {
-    templateUrl : "/templates/edit.html",
-    controller: "EditCtrl"
-  })
   .otherwise('/');
 })
