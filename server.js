@@ -1,13 +1,13 @@
-const express = require('express');
-const app = express();
-const bodyParser = require('body-parser');
-const morgan = require('morgan');
-const mongoose = require('mongoose');
-const passport = require('passport');
-const config = require('./config/database'); // Config do banco
-const User = require('./app/models/user'); // get the mongoose model
-const port = process.env.PORT || 8080;
-const jwt = require('jwt-simple');
+var express = require('express');
+var app = express();
+var bodyParser = require('body-parser');
+var morgan = require('morgan');
+var mongoose = require('mongoose');
+var passport = require('passport');
+var config = require('./config/database'); // Config do banco
+var User = require('./app/models/user'); // get the mongoose model
+var port = process.env.PORT || 8080;
+var jwt = require('jwt-simple');
 
 app.use(bodyParser.urlencoded({
     extended: false
@@ -36,7 +36,7 @@ mongoose.connect(config.database);
 require('./config/passport')(passport);
 
 // rotas
-let apiRoutes = express.Router();
+var apiRoutes = express.Router();
 
 
 
@@ -53,7 +53,7 @@ apiRoutes.post('/signup', function(req, res) {
         });
     } else {
         // inserindo informações do 'request' a 'newUser' para salva-lo no banco
-        let newUser = new User({
+        var newUser = new User({
             name: req.body.name,
             password: req.body.password,
             email: req.body.email,
@@ -103,7 +103,7 @@ apiRoutes.post('/authenticate', function(req, res) {
             user.comparePassword(req.body.password, function(err, isMatch) {
                 if (isMatch && !err) {
                     // se as senhas se coincidem nós criamos uma token, para o acesso na api
-                    let token = jwt.encode(user, config.secret);
+                    var token = jwt.encode(user, config.secret);
                     // retorna a token e a informação que a autenticação foi realizada com sucesso
                     res.json({
                         success: true,
@@ -126,13 +126,13 @@ apiRoutes.get('/userinfo', passport.authenticate('jwt', {
 }), function(req, res) {
 
     //separando a token
-    let token = getToken(req.headers);
+    var token = getToken(req.headers);
 
     // se alguma token foi enviada
     if (token) {
 
         //descodificando a token, verificando-a e dando a 'decoded' todas as informações do usuário referente a tal token
-        let decoded = jwt.decode(token, config.secret);
+        var decoded = jwt.decode(token, config.secret);
         //verificando se existe o usuário
         User.findOne({
             name: decoded.name
@@ -177,14 +177,14 @@ apiRoutes.post('/inactivate/:action', passport.authenticate('jwt', {
     session: false
 }), function(req, res) {
 
-    let parameter = req.params.action;
+    var parameter = req.params.action;
     //separando a token
-    let token = getToken(req.headers);
+    var token = getToken(req.headers);
 
     //verificando se alguma token foi enviada
     if (token) {
         //descodificando a token, verificando-a e dando a 'decoded' todas as informações do usuário referente a tal token
-        let decoded = jwt.decode(token, config.secret);
+        var decoded = jwt.decode(token, config.secret);
         //verificando o usuário
         User.findOne({
             name: decoded.name
@@ -261,13 +261,13 @@ apiRoutes.post('/active/:action', passport.authenticate('jwt', {
     session: false
 }), function(req, res) {
     //separando a token
-    let parameter = req.params.action;
-    let token = getToken(req.headers);
+    var parameter = req.params.action;
+    var token = getToken(req.headers);
 
     //verificando se alguma token foi enviada
     if (token) {
         //descodificando a token, verificando-a e dando a 'decoded' todas as informações do usuário referente a tal token
-        let decoded = jwt.decode(token, config.secret);
+        var decoded = jwt.decode(token, config.secret);
         //verificando o usuário
         User.findOne({
             name: decoded.name
@@ -342,10 +342,10 @@ apiRoutes.put('/edit', passport.authenticate('jwt', {
     session: false
 }), function(req, res) {
     //separando a token
-    let token = getToken(req.headers);
+    var token = getToken(req.headers);
     if (token) {
         //descodificando a token, verificando-a e dando a 'decoded' todas as informações do usuário referente a tal token
-        let decoded = jwt.decode(token, config.secret);
+        var decoded = jwt.decode(token, config.secret);
         //procurando o usuário referente a token
         User.findOne({
             name: decoded.name
@@ -405,7 +405,7 @@ apiRoutes.put('/edit', passport.authenticate('jwt', {
 //função para separar a token, já que ela vem com o JWT antes
 getToken = function(headers) {
     if (headers && headers.authorization) {
-        let parted = headers.authorization.split(' ');
+        var parted = headers.authorization.split(' ');
         if (parted.length === 2) {
             return parted[1];
         } else {

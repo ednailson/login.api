@@ -1,28 +1,26 @@
-# Basic docker image for RocketMap
-# Usage:
-#   docker build -t rocketmap .
-#   docker run -d -P rocketmap -a ptc -u YOURUSERNAME -p YOURPASSWORD -l "Seattle, WA" -st 10 --gmaps-key CHECKTHEWIKI
+FROM node:7.10.1
 
-FROM alpine
+RUN useradd --user-group --create-home --shell /bin/false app &&\
+  npm install --global npm@4.2.0
 
-EXPOSE 8080
+ENV HOME=/home/app
 
-WORKDIR /Documentos/GitHub/kofre-nTopus
+COPY package.json $HOME/library/
+RUN chown -R app:app $HOME/*
 
-CMD ["-h"]
+USER app
+WORKDIR $HOME/library
+RUN npm cache clean && npm install --silent --progress=false
+
+USER root
+COPY . $HOME/library
+RUN chown -R app:app $HOME/*
+USER app
 
 RUN apt-get update && apt-get install -y --no-install-recommends build-essential \
  && apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv EA312927 \
  && echo "deb http://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.2 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-3.2.list \
  && apt-get update \
- && apt-get install -y mongodb-org \
- && apt-get update \
- && apt-get install nodejs \
- && apt-get install npm
+ && apt-get install -y mongodb-org
 
-COPY package.json /Documentos/GitHub/kofre-nTopus
-
-RUN npm install \
- && nodemon server.js
-
-COPY . /Documentos/GitHub/kofre-nTopus
+CMD ["npm", "start"]
