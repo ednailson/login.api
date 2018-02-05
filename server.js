@@ -205,7 +205,7 @@ apiRoutes.post('/inactivate/:action', passport.authenticate('jwt', {
                   user.save(function() {
                       return res.status(200).send({
                           success: true,
-                          msg: 'Usuário ' + user.name + ' foi ativado'
+                          msg: 'Usuário ' + user.name + ' foi inativado'
                       });
                   });
               } else if (parameter == 'post') {
@@ -215,7 +215,7 @@ apiRoutes.post('/inactivate/:action', passport.authenticate('jwt', {
                   user.save(function() {
                       return res.status(200).send({
                           success: true,
-                          msg: 'Permissão para post do usuário  ' + user.name + ' foi concebida!'
+                          msg: 'Permissão para post do usuário  ' + user.name + ' foi retirada!'
                       });
                   });
               } else if (parameter == 'sendEmail') {
@@ -225,7 +225,7 @@ apiRoutes.post('/inactivate/:action', passport.authenticate('jwt', {
                   user.save(function() {
                       return res.status(200).send({
                           success: true,
-                          msg: 'Permissão para enviar e-mail do usuário  ' + user.name + ' foi concebida!'
+                          msg: 'Permissão para enviar e-mail do usuário  ' + user.name + ' foi retirada!'
                       });
                   });
               } else if (parameter == 'edit') {
@@ -235,7 +235,7 @@ apiRoutes.post('/inactivate/:action', passport.authenticate('jwt', {
                   user.save(function() {
                       return res.status(200).send({
                           success: true,
-                          msg: 'Permissão para editar do usuário  ' + user.name + ' foi concebida!'
+                          msg: 'Permissão para editar do usuário  ' + user.name + ' foi retirada!'
                       });
                   });
               } else {
