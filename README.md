@@ -32,7 +32,7 @@ name: String
 password: String
 email: String
 about: String
-age: String
+age: Int
 phone: String
 ```
 
@@ -57,7 +57,7 @@ A `token` será necessária para pegar **informações** do usuário, então, se
 #### Usuário informações
 ##### metodo: GET
 
-http://localhost:8080/api/authenticate
+http://localhost:8080/api/userinfo
 
 ``` bash
 # HEARDER KEY
@@ -133,4 +133,4 @@ token (gerada na autenticação)
 
 #### Versão
 
-0.3.1
+0.4.0
