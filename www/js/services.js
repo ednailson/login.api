@@ -1,12 +1,12 @@
 angular.module('my.services', ['ngRoute','my.controllers', 'my.routes'])
 
 .service('AuthService', function($q, $http, API_ENDPOINT) {
-  let LOCAL_TOKEN_KEY = 'token';
-  let isAuthenticated = false;
-  let authToken;
+  var LOCAL_TOKEN_KEY = 'token';
+  var isAuthenticated = false;
+  var authToken;
 
   function getToken() {
-    let token = window.localStorage.getItem(LOCAL_TOKEN_KEY);
+    var token = window.localStorage.getItem(LOCAL_TOKEN_KEY);
     if (token) {
       useToken(token);
     }
@@ -32,7 +32,7 @@ angular.module('my.services', ['ngRoute','my.controllers', 'my.routes'])
     window.localStorage.removeItem(LOCAL_TOKEN_KEY);
   }
 
-  let register = function(user) {
+  var register = function(user) {
     return $q(function(resolve, reject) {
       $http.post(API_ENDPOINT.url + '/signup', user).then(function(result) {
         if (result.data.success) {
@@ -44,7 +44,7 @@ angular.module('my.services', ['ngRoute','my.controllers', 'my.routes'])
     });
   };
 
-  let login = function(user) {
+  var login = function(user) {
     return $q(function(resolve, reject) {
       $http.post(API_ENDPOINT.url + '/authenticate', user).then(function(result) {
         if (result.data.success) {
@@ -58,7 +58,7 @@ angular.module('my.services', ['ngRoute','my.controllers', 'my.routes'])
     });
   };
 
-  let logout = function() {
+  var logout = function() {
     deleteToken();
   };
 

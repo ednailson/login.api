@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 const bcrypt = require('bcrypt');
 
 // Model do Usuário
-let UserSchema = new Schema({
+var UserSchema = new Schema({
   name: {
         type: String,
         unique: true,
@@ -28,7 +28,7 @@ UserSchema.add({
 
 //Criptografando a senha
 UserSchema.pre('save', function (next) {
-    let user = this;
+    var user = this;
     if (this.isModified('password') || this.isNew) {
         bcrypt.genSalt(10, function (err, salt) {
             if (err) {
