@@ -1,10 +1,5 @@
 version: '2'
 services:
-  db:
-    image: mongo
-    ports:
-      - "28004:27017"
-    command: "--smallfiles --logpath=/dev/null"
   library:
     build:
       context: .
@@ -17,5 +12,3 @@ services:
     volumes:
      - .:/home/app/library
      - /home/app/library/node_modules
-    links:
-     - db
