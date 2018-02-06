@@ -1,5 +1,8 @@
 version: '2'
 services:
+  db:
+    image: mongo
+    command: "mongod"
   library:
     build:
       context: .
@@ -10,5 +13,7 @@ services:
     ports:
       - 3000:3000
     volumes:
-     - .:/home/app/library
-     - /home/app/library/node_modules
+      - .:/home/app/library
+      - /home/app/library/node_modules
+    links:
+      - db
