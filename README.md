@@ -2,19 +2,15 @@
 
 > API para login
 
-### Instalação - LINUX
+### Requisitos
 
-#### [mongoDB](https://www.mongodb.com/) & [npm](https://www.npmjs.com/get-npm?utm_source=house&utm_medium=homepage&utm_campaign=free%20orgs&utm_term=Install%20npm)
-É necessário possuir mongoDB e npm na máquina
+#### [Docker](https://docs.docker.com/install/)
+É necessário possuir [docker](https://docs.docker.com/install/) e [docker-compose](https://docs.docker.com/compose/install/)
 
-``` bash
-# Instalando dependencias
-npm install
-```
+### Running
 
 ``` bash
-# Rodar server
-nodemon serve.js
+docker-compose up
 ```
 
 #### Servidor rodando em http://localhost:8080/
