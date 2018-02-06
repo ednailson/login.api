@@ -21,5 +21,4 @@ COPY . $HOME/library
 RUN chown -R app:app $HOME/*
 RUN npm install --build-from-source bcrypt
 
-CMD ["mongod"]
 CMD ["npm", "start"]
