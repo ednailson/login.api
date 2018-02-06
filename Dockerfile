@@ -14,13 +14,12 @@ ENV HOME=/home/app
 COPY package.json $HOME/library/
 RUN chown -R app:app $HOME/*
 
-USER app
+USER root
 WORKDIR $HOME/library
 RUN npm install --silent --progress=false
-
-USER root
 COPY . $HOME/library
 RUN chown -R app:app $HOME/*
-USER app
+RUN npm install --build-from-source bcrypt
 
+CMD ["mongod"]
 CMD ["npm", "start"]
